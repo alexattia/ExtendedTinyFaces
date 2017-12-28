@@ -82,7 +82,7 @@ def train_binclas(pics, detections, idx_detection):
     clf.fit(X, y)
     # keeping 4th picture detections in the neighborhoud
     x1, y1, x2, y2 = detections[0][idx_detection] 
-    neigh_detect = [k for k in detections[3] if 
+    neigh_detect = [k for k in detections[::-1][0] if 
                 np.abs(k[0]-x1) < 600 and 
                 np.abs(k[1]-y1) < 600 and
                 np.abs(k[2]-x2) < 600 and
