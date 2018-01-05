@@ -89,7 +89,7 @@ def train_binclas(pics, detections, idx_detection):
                 np.abs(k[3]-y2) < 600]
     
     # Get face images to classify
-    img_neighb = [pics[3][y1_:y2_,x1_:x2_,:] for (x1_, y1_, x2_, y2_) in neigh_detect]
+    img_neighb = [pics[::-1][0][y1_:y2_,x1_:x2_,:] for (x1_, y1_, x2_, y2_) in neigh_detect]
     # Encode each face
     neigh_detect_encodings = encoding_faces(img_neighb, -1, neigh_detect)[:,:128]
     # compute distances
