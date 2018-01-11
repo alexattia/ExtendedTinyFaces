@@ -61,7 +61,9 @@ def find_best_bbox(box, predicted_boxes):
     :param predicted_boxes: list of predicted bounding boxes
     :return: index of the corresponding bbox, jaccard distance
     """
-    (x1, y1, w, h, _, _, _, _, _, _) = map(int,box.split())
+    if type(box) == list:
+        box = ' '.join(map(str,box))
+    (x1, y1, w, h) = map(int,box.split()[:4])
     boxA = [x1, y1, x1+w, y1+h]
     l = []
     # boxB : [x1, x2, y1, y2] (top-left and bottom-right)
@@ -79,6 +81,7 @@ def mean_jaccard(truth_boxes, predicted_boxes, only_tp=True):
     :param truth_boxes: ground truth bounding boxes
     :param predicted_boxes: predicted bounding boxes
     :param only_tp: boolean to only keep true positive bounding bo
+    :return: mean jaccard and number of TP (None, if no TP found)
     """
     l = []
     for truth_box in truth_boxes:
@@ -87,13 +90,12 @@ def mean_jaccard(truth_boxes, predicted_boxes, only_tp=True):
     if only_tp:
         l = [k for k in l if k > 0]
     if len(l) > 0:
-        return np.mean(l)
+        return np.mean(l), len(l)
 
 def compute_stats(data_dir, truth, predictions):
     """
     Compute the mean Jaccard distance and the ratio of predicted bounding
     boxes compared to the number of actual bounding boxes
-    :param pictures: pictures names
     :param data_dir: directory path with the pictures
     :param truth: dict of actual annotations of the bounding boxes 
             d[name] = [(x1, y1, w, h, blur, expression, illumination, invalid, occlusion, pose)]
@@ -108,10 +110,14 @@ def compute_stats(data_dir, truth, predictions):
     a = np.zeros((n_pictures,4))
     
     for idx in range(n_pictures):
-        pic = pictures[idx].replace(data_dir, '')
-        jaccard.append(mean_jaccard(truth[pictures[idx].replace(data_folder, '')], predictions[idx]))
+        temp = mean_jaccard(truth[pictures[idx].replace(data_folder, '')], predictions[idx])
+        if temp:
+            mean_jac, nb_pred = temp
+        else:
+            mean_jac, nb_pred = None, 0
+        jaccard.append(mean_jac)
         n_truth_boxes.append(len(truth[pictures[idx].replace(data_folder, '')]))
-        n_pred_boxes.append(len(predictions[idx]))  
+        n_pred_boxes.append(nb_pred)  
     
     a[:,0] = jaccard
     a[:,1] = n_truth_boxes
