@@ -74,7 +74,7 @@ def find_best_bbox(box, predicted_boxes):
     else:
       return -1, 0
 
-def mean_jaccard(truth_boxes, predicted_boxes, only_tp=True):
+def mean_jaccard(truth_boxes, predicted_boxes, only_tp=True, blurred=0):
     """
     Compute the average Jaccard distance for the bounding boxes of 
     one picture. 
@@ -85,14 +85,15 @@ def mean_jaccard(truth_boxes, predicted_boxes, only_tp=True):
     """
     l = []
     for truth_box in truth_boxes:
-        _, jd = find_best_bbox(truth_box, predicted_boxes)
-        l.append(jd)
+        if int(truth_box.split()[4]) >= blurred:
+            _, jd = find_best_bbox(truth_box, predicted_boxes)
+            l.append(jd)
     if only_tp:
         l = [k for k in l if k > 0]
     if len(l) > 0:
         return np.mean(l), len(l)
 
-def compute_stats(data_dir, truth, predictions):
+def compute_stats(data_dir, truth, predictions, blurred=0):
     """
     Compute the mean Jaccard distance and the ratio of predicted bounding
     boxes compared to the number of actual bounding boxes
@@ -101,6 +102,7 @@ def compute_stats(data_dir, truth, predictions):
             d[name] = [(x1, y1, w, h, blur, expression, illumination, invalid, occlusion, pose)]
     :param predictions: list of predicted bounding boxes 
             keeping the same order of glob.glob(pictures folder)
+    :param blurred: 0 for all faces, 1 for normal blurred faces, 2 for heavy blurred faces
     :return: (len(pictures), 4) numpy array and the corresponding panda DataFrame
             ['mean Jaccard', 'Nb_Truth_Bboxes', 'Nb_Pred_Bboxes', 'Ratio_Bboxes']
     """
@@ -110,13 +112,14 @@ def compute_stats(data_dir, truth, predictions):
     a = np.zeros((n_pictures,4))
     
     for idx in range(n_pictures):
-        temp = mean_jaccard(truth[pictures[idx].replace(data_folder, '')], predictions[idx])
+        truth_boxes = truth[pictures[idx].replace(data_folder, '')]
+        temp = mean_jaccard(truth_boxes, predictions[idx], blurred=blurred)
         if temp:
             mean_jac, nb_pred = temp
         else:
             mean_jac, nb_pred = None, 0
         jaccard.append(mean_jac)
-        n_truth_boxes.append(len(truth[pictures[idx].replace(data_folder, '')]))
+        n_truth_boxes.append(len([k for k in truth_boxes if int(k.split()[4]) >= blurred]))
         n_pred_boxes.append(nb_pred)  
     
     a[:,0] = jaccard
