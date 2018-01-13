@@ -1,35 +1,32 @@
 # ExtendedTinyFaces
-Analysis, review and application of the Finding Tiny Faces (P. Hu) paper [1] with a focus on counting people.
+Analysis, review and application of Finding Tiny Faces (P. Hu) [1] with a focus on counting the many faces in a demonstration/crowd.
 
 ### Introduction
 The paper - released at CVPR 2017 - deals with finding small objects (particularly faces in our case) in an image, 
 based on scale-specific detectors by using features defined over single (deep) feature hierarchy : 
-Scale Invariance, Image resolution, Contextual reasoning. The algorithm is based on foveal descriptors, i.e blurring the peripheral image to encode and give just enough 
-information about the context, mimicking the human vision.   
-The subject is still an open challenge and we would like to enlarge it to new horizons and 
-experiment this ap- proach to different applications. The goal would be to deeply understand 
-the choices of the paper, together with their applications on subjects related to security and identification.  
+Scale Invariance, Image resolution, Contextual reasoning. The algorithm is based on foveal descriptors, i.e blurring the peripheral image to encode and give just enough information about the context, mimicking the human vision.   
+The subject is still an open challenge and we would like to enlarge it to new horizons and experiment this approach to different applications. The goal would be to deeply understand the choices of the paper, together with their applications on subjects related to security and identification.  
+
 <img src="https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/92_TinyFaces.png" height="320">
 
 ### Face detection benchmark
 First, we aim at comparing the Tiny Faces algorithm with other face detection models.  
 We use two particular sub-folders of the WIDERFACE dataset (*Parade*  and *Dresses*) to compare our model with Faster R-CNN for face detection (using [MXNet](https://github.com/tornadomeet/mxnet-face), MTCNN[6] (using [MXNET](https://github.com/pangyupo/mxnet_mtcnn_face_detection)),  Haar Cascade[2] and HOG[3].  
-This benchmark could be find in this [notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/Face%20Detection%20algorithms%20comparison.ipynb)
+This benchmark can be found in this [notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/Face%20Detection%20algorithms%20comparison.ipynb)
 ![Benchmark](https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/benchmark.png)
 
 ### Image resolution influence
-The performance of the Tiny Faces algorithm is linked to the image resolution. This parameter really affects the face detection as explained in the original paper. We used the inference part and plotted the variation of detected faces while downscaling the image resolution.  
+The performance of the Tiny Faces algorithm is linked with the image resolution. Indeed, this parameter really affects the face detection as explained in the original paper. We used the inference part and plotted the variations of detected faces while downscaling the image resolution.  
 <img src="https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/Downscale_graph.png" height="270"> <img src="https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/Downscaling.png" height="270">
 
 ### Face Recognition
-Other applications of the paper would be for face recognition. 
-Indeed, we aim at building a Python pipeline for face recognition. 
+Face recognition can be another application of the paper. Thus, we aim at building a Python pipeline for face recognition. 
 We would like to use face alignment[4] and face embedding[5] to achieve face classification.   
-The first application, we would like to explore include : counting the many different faces 
+The first application we would like to explore includes : counting the many different faces 
 (numerous people displayed with different size in the picture) in a video of a crowded public demonstration.   
-This application could be find in this 
+This application can be found in this 
 [notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/Counting%20in%20video.ipynb).  
-For this, we have to match people from one frame to another in order to count the same people only once. The matching is achievied with face recognition and we count people with face detection. We used a linear SVM for the face classificaton.
+In order to achieve it, we have to match people from one frame to another one to make sure the counting of a person is not redundant. The matching is achievied with face recognition and we count people with face detection. We used a linear SVM for the face classificaton.
 ![alt-text-1](https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/TotalIncrementalCount.gif)
 
 ### References 
