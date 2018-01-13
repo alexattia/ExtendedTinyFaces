@@ -1,4 +1,36 @@
 # -*- coding: utf-8 -*-
+from scipy.special import expit
+import numpy as np
+import cv2
+
+def overlay_bounding_boxes(raw_img, refined_bboxes, lw, draw):
+  """
+  Overlay bounding boxes of face on images.
+    :param raw_img: target image.
+    :param refined_bboxes: Bounding boxes of detected faces.
+    :param lw: Line width of bounding boxes. If zero specified,
+               this is determined based on confidence of each detection.
+    :returns: bounding boxes
+  """
+
+  # Overlay bounding boxes on an image with the color based on the confidence.
+  bboxes = []
+  for r in refined_bboxes:
+    _score = expit(r[4])
+    cm_idx = int(np.ceil(_score * 255))
+    rect_color = [int(np.ceil(x * 255)) for x in cm_data[cm_idx]]  # parula
+    _lw = lw
+    if lw == 0:  # line width of each bounding box is adaptively determined.
+      bw, bh = r[2] - r[0] + 1, r[3] - r[0] + 1
+      _lw = 1 if min(bw, bh) <= 20 else max(2, min(3, min(bh / 20, bw / 20)))
+      _lw = int(np.ceil(_lw * _score))
+
+    _r = [int(x) for x in r[:4]]
+    if draw:
+        cv2.rectangle(raw_img, (_r[0], _r[1]), (_r[2], _r[3]), rect_color, _lw)
+    bboxes.append([_r[0], _r[1], _r[2], _r[3]])
+  return bboxes
+
 # colormap parula borrowed from
 # https://github.com/BIDS/colormap/blob/master/fake_parula.py
 cm_data = [[ 0.26710521,  0.03311059,  0.6188155 ],

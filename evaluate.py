@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import tensorflow as tf
 import tiny_faces_model as tiny_model 
 import util
@@ -21,40 +17,7 @@ import sys
 from scipy.special import expit
 import glob
 
-MAX_INPUT_DIM = 5000.0
-
-def overlay_bounding_boxes(raw_img, refined_bboxes, lw, draw):
-  """Overlay bounding boxes of face on images.
-    Args:
-      raw_img:
-        A target image.
-      refined_bboxes:
-        Bounding boxes of detected faces.
-      lw: 
-        Line width of bounding boxes. If zero specified,
-        this is determined based on confidence of each detection.
-    Returns:
-      None.
-  """
-
-  # Overlay bounding boxes on an image with the color based on the confidence.
-  bboxes = []
-  for r in refined_bboxes:
-    _score = expit(r[4])
-    cm_idx = int(np.ceil(_score * 255))
-    rect_color = [int(np.ceil(x * 255)) for x in util.cm_data[cm_idx]]  # parula
-    _lw = lw
-    if lw == 0:  # line width of each bounding box is adaptively determined.
-      bw, bh = r[2] - r[0] + 1, r[3] - r[0] + 1
-      _lw = 1 if min(bw, bh) <= 20 else max(2, min(3, min(bh / 20, bw / 20)))
-      _lw = int(np.ceil(_lw * _score))
-
-    _r = [int(x) for x in r[:4]]
-    if draw:
-        cv2.rectangle(raw_img, (_r[0], _r[1]), (_r[2], _r[3]), rect_color, _lw)
-    bboxes.append([_r[0], _r[1], _r[2], _r[3]])
-  return bboxes
-   
+MAX_INPUT_DIM = 5000.0   
     
 def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, list_imgs=None,
               prob_thresh=0.5, nms_thresh=0.1, lw=3, display=False, 
@@ -100,7 +63,10 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, list_i
   with open(weight_file_path, "rb") as f:
     _, mat_params_dict = pickle.load(f)
 
+  # Average RGB values from model
   average_image = model.get_data_by_key("average_image")
+  
+  # Reference boxes of template for 05x, 1x, and 2x scale
   clusters = model.get_data_by_key("clusters")
   clusters_h = clusters[:, 3] - clusters[:, 1] + 1
   clusters_w = clusters[:, 2] - clusters[:, 0] + 1
@@ -130,7 +96,12 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, list_i
           fname = 'current_picture'
           raw_img = filename
       raw_img_f = raw_img.astype(np.float32)
+      
       def _calc_scales():
+        """
+        Compute the different scales for detection
+        :return: [2^X] with X depending on the input image
+        """
         raw_h, raw_w = raw_img.shape[0], raw_img.shape[1]
         min_scale = min(np.floor(np.log2(np.max(clusters_w[normal_idx] / raw_w))),
                         np.floor(np.log2(np.max(clusters_h[normal_idx] / raw_h))))
@@ -205,14 +176,16 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, list_i
           print("time {:.2f} secs for {}".format(time.time() - start, fname))
 
       # non maximum suppression
-      # refind_idx = util.nms(bboxes, nms_thresh)
       refind_idx = tf.image.non_max_suppression(tf.convert_to_tensor(bboxes[:, :4], dtype=tf.float32),
                                                    tf.convert_to_tensor(bboxes[:, 4], dtype=tf.float32),
                                                    max_output_size=bboxes.shape[0], iou_threshold=nms_thresh)
       refind_idx = sess.run(refind_idx)
       refined_bboxes = bboxes[refind_idx]
-      f_box = overlay_bounding_boxes(raw_img, refined_bboxes, lw, draw)
-
+      
+      # convert bbox coordinates to int
+      # f_box = overlay_bounding_boxes(raw_img, refined_bboxes, lw, draw)
+      f_box = [[int(x) for x in r[:4] for r in refined_bboxes]]
+      
       if display:
         # plt.axis('off')
         plt.imshow(raw_img)
@@ -222,8 +195,9 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, list_i
         # save image with bounding boxes
         raw_img = cv2.cvtColor(raw_img, cv2.COLOR_RGB2BGR)
         cv2.imwrite(os.path.join(output_dir, fname), raw_img)
+      
       final_bboxes.append(f_box)
+
   if len(final_bboxes) == 1:
     final_bboxes = final_bboxes[0]
   return final_bboxes
-
