@@ -56,9 +56,9 @@ def overlay_bounding_boxes(raw_img, refined_bboxes, lw, draw):
   return bboxes
    
     
-def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, 
+def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None, list_imgs=None,
               prob_thresh=0.5, nms_thresh=0.1, lw=3, display=False, 
-              draw=True, save=True, print_=2):
+              draw=True, save=True, print_=0):
   """ 
   Detect faces in images.
   :param weight_file_path: A pretrained weight file in the pickle format 
@@ -77,6 +77,11 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None,
   :param print_: 0 for no print, 1 for light print, 2 for full print
   :return: final bboxes
   """
+  if type(img) != np.ndarray:
+    one_pic = False
+  else:
+    one_pic = True
+
   if not output_dir:
     save = False
     draw = False
@@ -104,8 +109,10 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None,
   # Find image files in data_dir.
   filenames = []
   # if we provide only one picture, no need to list files in dir
-  if type(img) != np.ndarray:
+  if one_pic:
     filenames = [img]
+  elif type(list_imgs) == list:
+    filenames = list_imgs
   else:
       for ext in ('*.png', '*.gif', '*.jpg', '*.jpeg'):
         filenames.extend(glob.glob(os.path.join(data_dir, ext)))
@@ -113,17 +120,16 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None,
   # main
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-
     for filename in filenames:
       # if we provide only one picture, no need to list files in dir
-      if type(img) != np.ndarray:
+      if not one_pic and type(list_imgs) != list:
           fname = filename.split(os.sep)[-1]
           raw_img = cv2.imread(filename)
           raw_img = cv2.cvtColor(raw_img, cv2.COLOR_BGR2RGB)
       else:
-          raw_img = img
+          fname = 'current_picture'
+          raw_img = filename
       raw_img_f = raw_img.astype(np.float32)
-
       def _calc_scales():
         raw_h, raw_w = raw_img.shape[0], raw_img.shape[1]
         min_scale = min(np.floor(np.log2(np.max(clusters_w[normal_idx] / raw_w))),
@@ -217,6 +223,8 @@ def evaluate(weight_file_path,  output_dir=None, data_dir=None, img=None,
         raw_img = cv2.cvtColor(raw_img, cv2.COLOR_RGB2BGR)
         cv2.imwrite(os.path.join(output_dir, fname), raw_img)
       final_bboxes.append(f_box)
+  if len(final_bboxes) == 1:
+    final_bboxes = final_bboxes[0]
   return final_bboxes
 
 def main():
@@ -244,5 +252,3 @@ def main():
       prob_thresh=args.prob_thresh, nms_thresh=args.nms_thresh,
       lw=args.line_width, display=args.display)
 
-#if __name__ == '__main__':
-#  main()
