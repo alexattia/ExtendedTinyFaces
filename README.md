@@ -5,7 +5,7 @@ Analysis, review and application of Finding Tiny Faces (P. Hu) [1] with a focus 
 The paper - released at CVPR 2017 - deals with finding small objects (particularly faces in our case) in an image, 
 based on scale-specific detectors by using features defined over single (deep) feature hierarchy : 
 Scale Invariance, Image resolution, Contextual reasoning. The algorithm is based on foveal descriptors, i.e blurring the peripheral image to encode and give just enough information about the context, mimicking the human vision.   
-The subject is still an open challenge and we would like to enlarge it to new horizons and experiment this approach to different applications. The goal would be to deeply understand the choices of the paper, together with their applications on subjects related to security and identification.  
+The subject is still an open challenge and we would like to enlarge it to new horizons and experiment this approach to different applications. The goal would be to deeply understand the choices of the paper, together with their applications on subjects related to security and identification. We are mainly focus on the inference part using a TensorFlow implementation, adapted from [this repo](https://github.com/cydonia999/Tiny_Faces_in_Tensorflow).
 
 <img src="https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/92_TinyFaces.png" height="320">
 
@@ -28,6 +28,13 @@ This application can be found in this
 [notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/Counting%20in%20video.ipynb).  
 In order to achieve it, we have to match people from one frame to another one to make sure the counting of a person is not redundant. The matching is achievied with face recognition and we count people with face detection. We used a linear SVM for the face classificaton.
 ![alt-text-1](https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/TotalIncrementalCount.gif)
+
+### Repository organisation
+[notebooks](https://github.com/alexattia/ExtendedTinyFaces/tree/master/notebooks) Notebooks folder with the different application and experiments   
+[detect.py](https://github.com/alexattia/ExtendedTinyFaces/blob/master/detect.py) File for the people matching in order to count people (cf the Counting people notebook)  
+[evaluate.py](https://github.com/alexattia/ExtendedTinyFaces/blob/master/evaluate.py) Inference function : detecting faces in one (or mulitple) picture  
+[tiny_faces_model.py](https://github.com/alexattia/ExtendedTinyFaces/blob/master/tiny_faces_model.py) Tiny Faces model  
+[util.py](https://github.com/alexattia/ExtendedTinyFaces/blob/master/util.py) Misc for overlay bounding boxes
 
 ### References 
 [[1]](https://arxiv.org/abs/1612.04402) Peiyun Hu and Deva Ramanan. Finding Tiny Faces. 2017.  
