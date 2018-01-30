@@ -1,5 +1,7 @@
 # ExtendedTinyFaces
-Analysis, review and application of Finding Tiny Faces (P. Hu) [1] with a focus on counting the many faces in a demonstration/crowd.
+Analysis, review and application of Finding Tiny Faces (P. Hu) [1] with a focus on counting the many faces in a demonstration/crowd.  
+RecVis (MVA) course - Alexandre Attia, [Sharone Dayan](https://github.com/SharoneDayan)  
+**You can find our [pre-print report on ArXiv](https://arxiv.org/abs/1801.06504)**.
 
 ### Introduction
 The paper - released at CVPR 2017 - deals with finding small objects (particularly faces in our case) in an image, 
