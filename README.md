@@ -14,7 +14,7 @@ The subject is still an open challenge and we would like to enlarge it to new ho
 ### Face detection benchmark
 First, we aim at comparing the Tiny Faces algorithm with other face detection models.  
 We use two particular sub-folders of the WIDERFACE dataset (*Parade*  and *Dresses*) to compare our model with Faster R-CNN for face detection (using [MXNet](https://github.com/tornadomeet/mxnet-face), MTCNN[6] (using [MXNET](https://github.com/pangyupo/mxnet_mtcnn_face_detection)),  Haar Cascade[2] and HOG[3].  
-This benchmark can be found in this [notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/Face%20Detection%20algorithms%20comparison.ipynb)
+This benchmark can be found in this [notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/notebooks/Face%20Detection%20algorithms%20comparison.ipynb)
 ![Benchmark](https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/benchmark.png)
 
 ### Image resolution influence
@@ -27,7 +27,7 @@ We would like to use face alignment[4] and face embedding[5] to achieve face cla
 The first application we would like to explore includes : counting the many different faces 
 (numerous people displayed with different size in the picture) in a video of a crowded public demonstration.   
 This application can be found in this 
-[notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/Counting%20in%20video.ipynb).  
+[notebook](https://github.com/alexattia/ExtendedTinyFaces/blob/master/notebooks/Counting%20in%20video.ipynb).  
 In order to achieve it, we have to match people from one frame to another one to make sure the counting of a person is not redundant. The matching is achievied with face recognition and we count people with face detection. We used a linear SVM for the face classificaton.
 ![alt-text-1](https://github.com/alexattia/ExtendedTinyFaces/blob/master/data/TotalIncrementalCount.gif)
 
